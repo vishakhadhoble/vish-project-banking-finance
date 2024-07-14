@@ -112,7 +112,7 @@ resource "aws_security_group" "proj-sg" {
 # Creating a new network interface
 resource "aws_network_interface" "proj-ni" {
  subnet_id = aws_subnet.proj-subnet.id
- private_ips = ["172.31.41.186"]
+ private_ips = ["10.0.1.1"]
  security_groups = [aws_security_group.proj-sg.id]
 }
 
@@ -120,7 +120,7 @@ resource "aws_network_interface" "proj-ni" {
 resource "aws_eip" "proj-eip" {
  vpc = true
  network_interface = aws_network_interface.proj-ni.id
- associate_with_private_ip = "172.31.41.186"
+ associate_with_private_ip = "10.0.1.1"
 }
 
 
