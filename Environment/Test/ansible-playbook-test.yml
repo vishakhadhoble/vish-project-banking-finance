@@ -12,14 +12,13 @@
   - name : Start Docker Service
     command : sudo systemctl start docker
 
-  - name: Ensure Docker container is running
+  - name: Delete existing container
     docker_container:
       name: vish-banking-container
       image: vishakhadhoble/vish-banking-image:1.0
-      state: started
-      ports:
-        - "8084:8081"
-      tty: yes
-      detach: yes
-      auto_remove: yes
+      state: absent
+      force_absent: yes
+
+  - name: Deploy Docker Container
+    command: docker run -itd -p 8084:8081 vishakhadhoble/vish-banking-image:1.0
       
