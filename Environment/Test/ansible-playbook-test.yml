@@ -2,6 +2,12 @@
   hosts : TestServer
   become: true
   connection : ssh
+  vars:
+    container_name: vish-banking-container
+    image_name: vishakhadhoble/vish-banking-image:1.0
+    host_port: 8084
+    container_port: 8081
+  
   tasks : 
   - name: updating apt
     command : sudo apt-get update
@@ -12,12 +18,19 @@
   - name : Start Docker Service
     command : sudo systemctl start docker
 
-  - name: Delete existing container
+  - name: Remove existing Docker container if it exists
     docker_container:
-      name: vish-banking-container
-      image: vishakhadhoble/vish-banking-image:1.0
+      name: "{{ container_name }}"
       state: absent
+    ignore_errors: yes
 
-  - name: Deploy Docker Container
-    command: docker run -itd -p 8084:8081 vishakhadhoble/vish-banking-image:1.0
+  - name: Run new Docker container
+    docker_container:
+      name: "{{ container_name }}"
+      image: "{{ image_name }}"
+      state: started
+      ports:
+        - "{{ host_port }}:{{ container_port }}"
+      tty: yes
+      detach: yes
       
