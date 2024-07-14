@@ -17,7 +17,6 @@
       name: vish-banking-container
       image: vishakhadhoble/vish-banking-image:1.0
       state: absent
-      force_absent: yes
 
   - name: Deploy Docker Container
     command: docker run -itd -p 8084:8081 vishakhadhoble/vish-banking-image:1.0
