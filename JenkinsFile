@@ -1,0 +1,29 @@
+node {
+    stage("Git Checkout") {
+        git 'https://github.com/vishakhadhoble/vish-project-banking-finance.git'
+    }
+    stage("Build code") {
+        sh 'mvn clean package'
+    }
+    stage('Build Docker Image') {
+        sh "docker build -t vish-banking-image:1.0 ."
+    }
+    stage("Docker hub login") {
+        withCredentials([string(credentialsId: 'dockerpass', variable: 'dockerpass')]) {
+            sh 'docker login -u vishakhadhoble -p ${dockerpass}'
+        }
+    }
+    stage("Doocker hub Push"){
+        sh 'docker tag vish-banking-image vishakhadhoble/vish-banking-image:1.0' 
+        sh 'docker push  vishakhadhoble/vish-banking-image:1.0'
+    }
+    stage('Terraform') {
+        sh 'cd Environment/Test && terraform init'
+        sh 'cd Environment/Test && terraform plan'
+        sh 'cd Environment/Test && terraform validate'
+        sh 'cd Environment/Test && terraform apply --auto-approve' 
+    }
+    stage("Ansible deployment") {
+        ansiblePlaybook become: true, credentialsId: 'ansible', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: 'Environment/Test/ansible-playbook-test.yml', vaultTmpPath: ''
+    }
+}
